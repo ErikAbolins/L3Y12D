@@ -4,27 +4,44 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    public float speed;
-    public float jump;
-    private float Move;
-    public Rigidbody2D rb;
-    // Start is called before the first frame update
+
+    public float moveSpeed = 5f; // Speed of the player
+    public float jumpForce = 10f; // Jump force
+    public Transform groundCheck; // Reference point for ground check
+    public LayerMask groundLayer; // Layer of the ground
+
+    private Rigidbody2D rb;
+    private bool isGrounded;
+
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Move = Input.GetAxis("Horizontal");
+        Move();
+        Jump();
+    }
 
-        rb.velocity = new Vector2(speed * Move, rb.velocity.y);
+    void Move()
+    {
+        float moveInput = Input.GetAxis("Horizontal");
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+    }
 
-        if(Input.GetButtonDown("Jump"))
+    void Jump()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            rb.AddForce(new Vector2(rb.velocity.x, jump));
+            Debug.Log("Jumping");
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
-
+        else if(!isGrounded)
+        {
+            Debug.Log("Not grounded");
+        }
     }
 }
