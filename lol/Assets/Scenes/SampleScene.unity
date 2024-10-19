@@ -691,7 +691,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointA: {fileID: 818382739}
   pointB: {fileID: 620252200}
-  speed: 2
+  speed: 8
   detectionRange: 5
   player: {fileID: 1305397021}
 --- !u!1 &818382738
