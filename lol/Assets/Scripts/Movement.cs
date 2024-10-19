@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+   
+    private float slideTimer; // Timer to track slide duration
+    private float slideCooldownTimer; // Timer to track cooldown duration
+    public float slideDuration = 1f; // Duration of the slide in seconds
+    public float slideCooldown = 2f; // Cooldown time before the player can slide again
+    public float slideSpeed = 11f; // Speed of the slide
     public Animator animator; // Reference to the animator component
     private float currentSpeed;
     public float sprintSpeed = 20f; // Speed of the player when sprinting
@@ -23,13 +29,22 @@ public class Movement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         currentSpeed = moveSpeed; // Initialize current speed
         spriteRenderer = GetComponent<SpriteRenderer>();
+        slideTimer = 0f;
+        slideCooldownTimer = 0f;
     }
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.S))
+        {
+            Debug.Log("S is detected in the update");
+        }
+        
+        
         Move();
         Jump();
         Sprint();
+        Slide();
         
     }
 
@@ -102,5 +117,50 @@ public class Movement : MonoBehaviour
             Debug.Log("Sprint stopped");
         }
     }
+
+      void Slide()
+    {
+        // Check if the slide key is pressed, the player is grounded, and the cooldown timer is zero
+        if (Input.GetKey(KeyCode.S) && isGrounded && slideTimer <= 0f && slideCooldownTimer <= 0f)
+        {
+            Debug.Log("Sliding started");
+            animator.SetBool("isSliding", true); // Trigger slide animation
+
+            float slideDirection = spriteRenderer.flipX ? -1 : 1; // Determine slide direction based on character's facing direction
+
+            // Apply a strong initial force for the slide to kick off the movement
+            rb.velocity = new Vector2(slideDirection * slideSpeed, rb.velocity.y);
+
+            slideTimer = slideDuration; // Start the slide duration timer
+            slideCooldownTimer = slideCooldown; // Set the cooldown timer
+        }
+
+        // Handle the slide duration countdown
+        if (slideTimer > 0)
+        {
+            slideTimer -= Time.deltaTime; // Decrease the slide duration timer
+
+            // Ensure the character continues sliding with the same velocity until the slide ends
+            float slideDirection = spriteRenderer.flipX ? -1 : 1; // Update direction in case of flip
+            rb.velocity = new Vector2(slideDirection * slideSpeed, rb.velocity.y);
+
+            // If the slide duration is over, stop the slide
+            if (slideTimer <= 0)
+            {
+                Debug.Log("Slide ended");
+                animator.SetBool("isSliding", false); // Stop slide animation
+                rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement after sliding
+            }
+        }
+
+        // Countdown for the slide cooldown timer
+        if (slideCooldownTimer > 0)
+        {
+            slideCooldownTimer -= Time.deltaTime; // Decrease the cooldown timer
+        }
+    }
+ 
+
+
 
 }

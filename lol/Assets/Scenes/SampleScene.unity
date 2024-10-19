@@ -520,6 +520,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bf3b0eaa91b2f346a22505684b4a102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slideDuration: 1
+  slideCooldown: 1
+  slideSpeed: 11
   animator: {fileID: 1305397022}
   sprintSpeed: 10
   moveSpeed: 5
