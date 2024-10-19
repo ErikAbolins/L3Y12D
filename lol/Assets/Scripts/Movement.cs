@@ -22,7 +22,8 @@ public class Movement : MonoBehaviour
     private Rigidbody2D rb;
     private bool isGrounded;
     private int extraJump;
-    public int extraJumpValue; 
+    public int extraJumpValue;
+    private BoxCollider2D boxCollider; 
 
     void Start()
     {
@@ -31,6 +32,7 @@ public class Movement : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         slideTimer = 0f;
         slideCooldownTimer = 0f;
+        boxCollider = GetComponent<BoxCollider2D>();
     }
 
     void Update()
@@ -126,6 +128,8 @@ public class Movement : MonoBehaviour
             Debug.Log("Sliding started");
             animator.SetBool("isSliding", true); // Trigger slide animation
 
+            boxCollider.size = new Vector2(boxCollider.size.x, boxCollider.size.y / 2);
+
             float slideDirection = spriteRenderer.flipX ? -1 : 1; // Determine slide direction based on character's facing direction
 
             // Apply a strong initial force for the slide to kick off the movement
@@ -150,6 +154,7 @@ public class Movement : MonoBehaviour
                 Debug.Log("Slide ended");
                 animator.SetBool("isSliding", false); // Stop slide animation
                 rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement after sliding
+                boxCollider.size = new Vector2(boxCollider.size.x, boxCollider.size.y * 2); // Return to original size after sliding ends
             }
         }
 
