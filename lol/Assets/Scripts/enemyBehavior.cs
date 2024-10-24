@@ -67,21 +67,10 @@ public class enemyBehavior : MonoBehaviour
 
     void MoveTowardsTarget()
     {
-        //Flip direction
-        if (speed > 0)
-        {
-            spriteRenderer.flipX = false; // Face right
-            enemyDirection = 1f;
-        }
-        else if (speed < 0)
-        {
-            spriteRenderer.flipX = true; // Face left
-            enemyDirection = -1f;
-        }
-        else 
-        {
-            enemyDirection = 0;
-        }
+        //flip enemy sprite direction based on the target position
+        enemyDirection = target.x - transform.position.x;
+        spriteRenderer.flipX = enemyDirection < 0; // Face left or right based on enemy direction
+
         
         // Move towards the target position
         transform.position = Vector3.Lerp(transform.position, target, speed * Time.deltaTime);
@@ -93,18 +82,23 @@ public class enemyBehavior : MonoBehaviour
         target = movingToPointA ? pointA.position : pointB.position;
     }
 
+   
     void ObstacleDetect()
     {
-        RaycastHit2D hitRight = Physics2D.Raycast(RayObject.transform.position, Vector2.right * new Vector2(enemyDirection, 0f), RayDistance, layerMask);
-        Debug.DrawRay (RayObject.transform.position, Vector2.right * new Vector2(enemyDirection, 0f), Color.red);
+        //check if there is an obstacle infront of the enemy with a raycast
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right * new Vector2(enemyDirection, 0f), RayDistance, layerMask);
+        Debug.DrawRay (transform.position, Vector2.right * new Vector2(enemyDirection, 0f), Color.red);
 
+        //if the enemy direction changes then change the raycast direction also
+        if (enemyDirection!= hitRight.transform.position.x - transform.position.x)
+        {
+            enemyDirection = hitRight.transform.position.x - transform.position.x;
+        }
+
+        // if there is an obstacle, jump over it
         if (hitRight)
         {
-            Debug.Log("colision detected to the right");
             rb.AddForce (Vector2.up * jumpForce);
-        
         }
-       
-
     }
 } 
