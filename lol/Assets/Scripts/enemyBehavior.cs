@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class enemyBehavior : MonoBehaviour
 {
-   public Transform pointA;         // First patrol point
+    public LayerMask groundLayer;
+    public float jumpForce;
+    private bool wallFound;
+    public Transform pointA;         // First patrol point
     public Transform pointB;         // Second patrol point
     public float speed = 2.0f;       // Speed of the enemy
     public float detectionRange = 5.0f; // Range to detect the player
@@ -12,11 +15,21 @@ public class enemyBehavior : MonoBehaviour
 
     private Vector3 target;           // Current target position
     private bool movingToPointA = true; // Is the enemy moving to point A?
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+    private bool jump = false;
+    public float enemyDirection;
+    public GameObject RayObject;
+    [SerializeField] float RayDistance;
+    public LayerMask layerMask;
 
     void Start()
     {
         // Start by setting the initial target to point A
         target = pointA.position;
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        enemyDirection = 0f;
     }
 
     void Update()
@@ -32,6 +45,7 @@ public class enemyBehavior : MonoBehaviour
         {
             SwitchTarget();
         }
+        ObstacleDetect();
     }
 
     void DetectPlayer()
@@ -53,13 +67,44 @@ public class enemyBehavior : MonoBehaviour
 
     void MoveTowardsTarget()
     {
+        //Flip direction
+        if (speed > 0)
+        {
+            spriteRenderer.flipX = false; // Face right
+            enemyDirection = 1f;
+        }
+        else if (speed < 0)
+        {
+            spriteRenderer.flipX = true; // Face left
+            enemyDirection = -1f;
+        }
+        else 
+        {
+            enemyDirection = 0;
+        }
+        
         // Move towards the target position
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        transform.position = Vector3.Lerp(transform.position, target, speed * Time.deltaTime);
     }
 
     void SwitchTarget()
     {
         movingToPointA = !movingToPointA;
         target = movingToPointA ? pointA.position : pointB.position;
+    }
+
+    void ObstacleDetect()
+    {
+        RaycastHit2D hitRight = Physics2D.Raycast(RayObject.transform.position, Vector2.right * new Vector2(enemyDirection, 0f), RayDistance, layerMask);
+        Debug.DrawRay (RayObject.transform.position, Vector2.right * new Vector2(enemyDirection, 0f), Color.red);
+
+        if (hitRight)
+        {
+            Debug.Log("colision detected to the right");
+            rb.AddForce (Vector2.up * jumpForce);
+        
+        }
+       
+
     }
 } 
