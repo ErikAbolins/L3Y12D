@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Movement : MonoBehaviour
 {
@@ -24,6 +25,10 @@ public class Movement : MonoBehaviour
     private int extraJump;
     public int extraJumpValue;
     private BoxCollider2D boxCollider; 
+    private int health = 3;
+    public float invincibilityDuration = 1.0f;
+    private bool isInvincible;
+ 
 
     void Start()
     {
@@ -47,6 +52,7 @@ public class Movement : MonoBehaviour
         Jump();
         Sprint();
         Slide();
+        PlayerDeath();
         
     }
 
@@ -165,7 +171,36 @@ public class Movement : MonoBehaviour
         }
     }
  
+    
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy" && !isInvincible)
+        {
+            Debug.Log("Player hit by enemy");
+            health--; // Reduce player health by 1 when hit by an enemy
 
+            StartCoroutine(Invincibility()); // Start invincibility coroutine
+        }
+    }
 
+    void PlayerDeath()
+    {
+        if (health <= 0)
+        {
+            //reset the scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
 
+    IEnumerator Invincibility()
+    {
+        isInvincible = true; // Set the player as invincible
+
+        yield return new WaitForSeconds(invincibilityDuration); // Wait for the invincibility duration
+        isInvincible = false; // Stop the invincibility after the duration ends
+        //show timer in debuglog
+        Debug.Log("Invincibility ended");
+    }
+
+    
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class enemyBehavior : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class enemyBehavior : MonoBehaviour
     public GameObject RayObject;
     [SerializeField] float RayDistance;
     public LayerMask layerMask;
+
+
 
     void Start()
     {
@@ -101,4 +104,6 @@ public class enemyBehavior : MonoBehaviour
             rb.AddForce (Vector2.up * jumpForce);
         }
     }
+
+
 } 
