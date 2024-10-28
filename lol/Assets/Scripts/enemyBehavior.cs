@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class enemyBehavior : MonoBehaviour
 {
+    public Animator animator;
+    public Transform groundCheck;
     public LayerMask groundLayer;
     public float jumpForce;
     private bool wallFound;
@@ -23,6 +25,7 @@ public class enemyBehavior : MonoBehaviour
     public GameObject RayObject;
     [SerializeField] float RayDistance;
     public LayerMask layerMask;
+    private bool isGrounded;
 
 
 
@@ -73,6 +76,11 @@ public class enemyBehavior : MonoBehaviour
         //flip enemy sprite direction based on the target position
         enemyDirection = target.x - transform.position.x;
         spriteRenderer.flipX = enemyDirection < 0; // Face left or right based on enemy direction
+        //perform run animation if speed is greater than 0.01 using animator.setfloat("speed")
+        float distanceToTarget = Vector3.Distance(transform.position, target);
+        animator.SetFloat("Speed", distanceToTarget > 0.01f ? speed : 0f);
+       
+    
 
         
         // Move towards the target position
@@ -91,6 +99,7 @@ public class enemyBehavior : MonoBehaviour
         //check if there is an obstacle infront of the enemy with a raycast
         RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right * new Vector2(enemyDirection, 0f), RayDistance, layerMask);
         Debug.DrawRay (transform.position, Vector2.right * new Vector2(enemyDirection, 0f), Color.red);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
 
         //if the enemy direction changes then change the raycast direction also
         if (enemyDirection!= hitRight.transform.position.x - transform.position.x)
@@ -102,6 +111,12 @@ public class enemyBehavior : MonoBehaviour
         if (hitRight)
         {
             rb.AddForce (Vector2.up * jumpForce);
+            animator.SetBool("isJumping", true);
+        }
+
+        if (!isGrounded)
+        {
+            animator.SetBool("isJumping", false);
         }
     }
 

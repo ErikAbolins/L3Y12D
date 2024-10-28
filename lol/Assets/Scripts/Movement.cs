@@ -76,25 +76,31 @@ public class Movement : MonoBehaviour
     }
 
 
-   void Jump()
+    void Jump()
     {
         // Check if the character is grounded at the start of the method
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
 
-        // Reset jump animation when grounded and update extra jumps
+        // Reset jump and fall animations when grounded
         if (isGrounded)
         {
             extraJump = extraJumpValue;
+
+            // Reset jump and fall animations only when they are currently active
             if (animator.GetBool("isJumping"))
             {
-                animator.SetBool("isJumping", false); // Only reset animation if it's currently in the jumping state
+                animator.SetBool("isJumping", false);
+            }
+            if (animator.GetBool("isFalling"))
+            {
+                animator.SetBool("isFalling", false);
             }
         }
 
         // Handle the first jump when the character is grounded
         if (isGrounded && Input.GetButtonDown("Jump"))
-        {
-                Debug.Log("First Jump");
+        {   
+            Debug.Log("First Jump");
             rb.velocity = new Vector2(rb.velocity.x, 0); // Reset vertical velocity for consistent jump height
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             animator.SetBool("isJumping", true); // Trigger jump animation immediately
@@ -108,7 +114,18 @@ public class Movement : MonoBehaviour
             extraJump--;
             animator.SetBool("isJumping", true); // Ensure jump animation plays on double jump
         }
+
+        // Set falling animation if the player is moving downward and not grounded
+        if (!isGrounded && rb.velocity.y < -0.1f) // A small threshold to ensure falling animation isn't triggered too soon
+        {
+            if (!animator.GetBool("isFalling"))
+            {
+                animator.SetBool("isFalling", true);
+            }
+        }
     }
+ 
+
  
 
     void Sprint()
